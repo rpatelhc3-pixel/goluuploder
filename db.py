@@ -13,7 +13,7 @@ from vars import MONGO_URL, OWNER_ID, ADMINS
 colorama.init()
 
 class Database:
-    def init(self, max_retries: int = 3, retry_delay: float = 2.0):  # ✅ FIX: init → init
+   def__init__(self, max_retries: int = 3, retry_delay: float = 2.0): # ✅ FIX: init → init
         self._print_startup_message()
         self.client: Optional[MongoClient] = None
         self.db: Optional[MongoDatabase] = None
