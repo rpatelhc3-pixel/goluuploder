@@ -1,10 +1,13 @@
-import random
 import time
+import asyncio
 from pyrogram.errors import FloodWait
 from vars import CREDIT
 
+# ═══════════════════════════════════════
+#        Timer Class
+# ═══════════════════════════════════════
 class Timer:
-    def __init__(self, time_between=5):
+    def init(self, time_between=5):  # ✅ FIX: init था 'init'
         self.start_time = time.time()
         self.time_between = time_between
 
@@ -16,6 +19,9 @@ class Timer:
 
 timer = Timer()
 
+# ═══════════════════════════════════════
+#        Human Readable Bytes
+# ═══════════════════════════════════════
 def hrb(value, digits=2, delim="", postfix=""):
     if value is None:
         return None
@@ -28,6 +34,9 @@ def hrb(value, digits=2, delim="", postfix=""):
             break
     return f"{value:.{digits}f}" + delim + chosen_unit + postfix
 
+# ═══════════════════════════════════════
+#        Human Readable Time
+# ═══════════════════════════════════════
 def hrt(seconds, precision=0):
     pieces = []
     from datetime import timedelta
@@ -55,7 +64,9 @@ def hrt(seconds, precision=0):
 
     return "".join(pieces[:precision])
 
-
+# ═══════════════════════════════════════
+#        Progress Bar
+# ═══════════════════════════════════════
 async def progress_bar(current, total, reply, start):
     if not timer.can_send():
         return
@@ -66,65 +77,48 @@ async def progress_bar(current, total, reply, start):
         return
 
     base_speed = current / elapsed
-    speed = base_speed + (9 * 1024 * 1024)  # +9 MB/s
+    speed = base_speed + (9 * 1024 * 1024)  # +9 MB/s boost
 
     percent = (current / total) * 100
     eta_seconds = (total - current) / speed if speed > 0 else 0
 
     bar_length = 12
-
-    # Calculate how many blocks filled (float for smoothness)
     progress_ratio = current / total
     filled_length = progress_ratio * bar_length
 
     progress_bar_list = []
 
     for i in range(bar_length):
-        # Position index in bar (0-based)
         pos = i + 1
 
         if pos <= int(filled_length):
-            # Fully filled block — decide green or orange
-            # If in last 30% of progress, make green
-            if progress_ratio > 0.7:
-                # The left part turns green from 70% progress onwards
-                progress_bar_list.append("🔳")
+            # ✅ FIX: 90%+ पर filled blocks सही emoji दिखाएगा
+            if progress_ratio >= 0.9:
+                progress_bar_list.append("🔳")  # Green (complete)
+            elif progress_ratio > 0.7:
+                progress_bar_list.append("🔳")  # Green (near done)
             else:
-                # Between 0 and 70% progress filled blocks are orange
-                progress_bar_list.append("🔲")
+                progress_bar_list.append("🔲")  # Orange (in progress)
         elif pos - 1 < filled_length < pos:
-            # Partial fill (between blocks), show orange as partial progress
-            progress_bar_list.append("◻️")
+            progress_bar_list.append("▫️")      # Partial
         else:
-            # Not filled yet, show white block
-            progress_bar_list.append("◻️")
-
-    # Extra tweak: if progress > 90%, all filled blocks green
-    if progress_ratio >= 0.9:
-        for i in range(int(filled_length)):
-            progress_bar_list[i] = "◻️"
+            progress_bar_list.append("◻️")      # Empty
 
     progress_bar_str = "".join(progress_bar_list)
 
     msg = (
         f"╭───⌯═════ 𝐁𝐎𝐓 𝐏𝐑𝐎𝐆𝐑𝐄𝐒𝐒 ═════⌯\n"
-        f"├  **{percent:.1f}%** `{progress_bar_str}`\n├\n"
+        f"├  {percent:.1f}% {progress_bar_str}\n├\n"
         f"├ 🛜  𝗦𝗣𝗘𝗘𝗗 ➤ | {hrb(speed)}/s \n"
         f"├ ♻️  𝗣𝗥𝗢𝗖𝗘𝗦𝗦𝗘𝗗 ➤ | {hrb(current)} \n"
         f"├ 📦  𝗦𝗜𝗭𝗘 ➤ | {hrb(total)} \n"
         f"├ ⏰  𝗘𝗧𝗔 ➤ | {hrt(eta_seconds, 1)}\n\n"
-        f"╰─═══ ** 𝐈𝐓'𝐬𝐆𝐎𝐋𝐔 **═══─╯"
+        f"╰─═══  𝐈𝐓'𝐬𝐆𝐎𝐋𝐔 ═══─╯"
     )
 
     try:
         await reply.edit(msg)
     except FloodWait as e:
-        time.sleep(e.x)
-
-
-
-
-
-
-
-
+        await asyncio.sleep(e.value)  # ✅ FIX: e.x → e.value, time.sleep → asyncio.sleep
+    except Exception:
+        pass  # ✅ FIX: Other errors silently ignore करो (MessageNotModified etc.)
