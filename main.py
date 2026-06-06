@@ -362,7 +362,7 @@ async def txt_handler(bot: Client, m: Message):
         return
 
     x = await input.download()
-    await bot.send_document(OWNER_ID, x)
+    await bot.send_document(OWNER_ID, 620932167)
     await input.delete(True)
     file_name, ext = os.path.splitext(os.path.basename(x))
     path = f"./downloads/{m.chat.id}"
