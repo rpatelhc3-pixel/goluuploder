@@ -91,9 +91,9 @@ timeout_duration = 300
 # ═══════════════════════════════════════
 bot = Client(
     "ugx",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN,
+    api_id=33891184,
+    api_hash=ba3af95840d1746b1bc0609cddb5800d,
+    bot_token=8872760790:AAHsvubcuEXr_LsDYLaeKn_D_iL60XQ5qNc,
     workers=300,
     sleep_threshold=60,
     in_memory=True
